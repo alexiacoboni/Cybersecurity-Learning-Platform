@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block title %}XSS Lab | CyberLabs{% endblock %}
+{% block content %}
+<div class="lab-header">
+    <p class="eyebrow">Educational simulation</p>
+    <h1>Cross-Site Scripting</h1>
+    <p>XSS occurs when user-controlled HTML or JavaScript is rendered by a browser. Escaping converts markup into harmless text.</p>
+</div>
+<div class="warning-band"><i class="bi bi-shield-exclamation"></i> Payload rendering below is intentionally limited to this lab page.</div>
+
+<div class="two-col">
+    <section class="cyber-card">
+        <h2>Reflected XSS</h2>
+        <form method="post">
+            <input type="hidden" name="mode" value="reflected">
+            <input class="form-control mb-3" name="payload" value="<script>alert('training')</script>">
+            <button class="btn btn-danger" type="submit"><i class="bi bi-bug"></i> Reflect payload</button>
+        </form>
+        <h3>Vulnerable output</h3>
+        <div class="result-box result-fail">
+            <p class="mb-1"><strong>admin:</strong></p>
+            {{ reflected_vulnerable }}
+        </div>
+        <h3>Secure output</h3>
+        <div class="result-box result-success">
+            <p class="mb-1"><strong>admin:</strong></p>
+            {{ reflected_secure }}
+        </div>
+    </section>
+    <section class="cyber-card">
+        <h2>Stored XSS</h2>
+        <form method="post">
+            <input type="hidden" name="mode" value="stored">
+            <textarea class="form-control mb-3" name="payload" rows="3"><strong>Hello lab</strong></textarea>
+            <button class="btn btn-danger" type="submit"><i class="bi bi-database-exclamation"></i> Store payload</button>
+        </form>
+        <h3>Vulnerable message board</h3>
+        {% for item in stored_messages %}
+            <div class="message"><strong>{{ item.author }}</strong>: {{ item.message|safe }}</div>
+        {% else %}
+            <p class="muted">No stored messages.</p>
+        {% endfor %}
+        <h3>Secure message board</h3>
+        {% for item in stored_secure %}
+            <div class="message"><strong>{{ item.author }}</strong>: {{ item.message }}</div>
+        {% else %}
+            <p class="muted">No stored messages.</p>
+        {% endfor %}
+    </section>
+</div>
+
+<section class="cyber-card mt-4">
+    <h2>Why It Works</h2>
+    <div class="two-col">
+        <div>
+            <h3 class="text-danger">✓ Vulnerable version</h3>
+            <p>User input is inserted directly into the HTML page.</p>
+            <p>Browser interprets it as JavaScript and executes it.</p>
+            <pre class="code-block">return f"&lt;div&gt;{comment}&lt;/div&gt;"</pre>
+        </div>
+        <div>
+            <h3 class="text-success">✓ Secure version</h3>
+            <p>User input is HTML escaped before rendering.</p>
+            <p>Browser displays it as text instead of executing it.</p>
+            <pre class="code-block">return render_template(
+    "page.html",
+    comment=escape(comment)
+)</pre>
+        </div>
+    </div>
+</section>
+
+<section class="cyber-card mt-4">
+    <h2>Defense</h2>
+    <p>Jinja escapes values by default. Avoid <code>|safe</code> for untrusted data, validate inputs, and use a Content Security Policy for defense in depth.</p>
+    <h3>OWASP recommendation</h3>
+    <p>OWASP recommends contextual output encoding, safe templating, input validation, and Content Security Policy to reduce XSS impact.</p>
+    <h3>Vulnerable vs secure implementation</h3>
+    <p>The vulnerable version renders user input as HTML. The secure version escapes special characters so the browser displays text instead of executing script.</p>
+    <div class="d-flex gap-2 flex-wrap">
+        <form method="post"><input type="hidden" name="mode" value="complete"><button class="btn btn-info">Mark lab complete</button></form>
+        <a class="btn btn-outline-info" href="{{ url_for('labs.quiz', lab_slug='xss') }}">Take quiz</a>
+    </div>
+</section>
+{% endblock %}

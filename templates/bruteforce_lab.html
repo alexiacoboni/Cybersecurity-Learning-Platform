@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+{% block title %}Brute Force Lab | CyberLabs{% endblock %}
+{% block content %}
+<div class="lab-header">
+    <p class="eyebrow">Educational simulation</p>
+    <h1>Brute Force</h1>
+    <p>Brute force attacks automate guesses. The secure pattern combines password hashing, throttling, lockouts, monitoring, and user-safe error messages.</p>
+</div>
+<div class="warning-band"><i class="bi bi-shield-exclamation"></i> This is a local simulation; it does not target external systems.</div>
+
+<div class="two-col">
+    <section class="cyber-card">
+        <h2>Vulnerable Login Simulation</h2>
+        <form method="post">
+            <input type="hidden" name="mode" value="vulnerable">
+            <input class="form-control mb-3" name="username" value="student">
+            <textarea class="form-control mb-3" name="passwords" rows="7">123456
+password
+letmein
+admin
+qwerty
+training-pass</textarea>
+            <button class="btn btn-danger" type="submit"><i class="bi bi-unlock"></i> Run guesses</button>
+        </form>
+        {% if active_mode == "vulnerable" and simulated_attempts %}
+            <div class="result-box result-success mt-3">
+                <div class="attempt-trace">
+                    {% for item in simulated_attempts %}
+                        <div>Attempt {{ loop.index }}: {{ item.password }} {{ "✅" if item.success else "❌" }}</div>
+                    {% endfor %}
+                </div>
+                <h3 class="mt-3 mb-0">{{ vulnerable_result.message }}</h3>
+            </div>
+        {% endif %}
+    </section>
+    <section class="cyber-card">
+        <h2>Secure Rate-Limited Login</h2>
+        <form method="post">
+            <input type="hidden" name="mode" value="secure">
+            <input class="form-control mb-3" name="username" value="student">
+            <textarea class="form-control mb-3" name="passwords" rows="7">123456
+password
+letmein
+admin
+qwerty
+training-pass</textarea>
+            <button class="btn btn-success" type="submit"><i class="bi bi-shield-lock"></i> Run protected flow</button>
+        </form>
+        {% if secure_result %}
+            <div class="result-box result-fail mt-3">
+                <div class="attempt-trace">
+                    {% for item in simulated_attempts %}
+                        <div>Attempt {{ loop.index }} {{ "✅" if item.success else "❌" }}</div>
+                    {% endfor %}
+                </div>
+                <h3 class="mt-3">{{ secure_result.message }}</h3>
+                <p class="mb-1">Remaining attempts: {{ secure_result.remaining_attempts }}</p>
+                {% if secure_result.retry_after %}
+                    <p class="mb-0">Retry after: {{ secure_result.retry_after }} seconds</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<section class="cyber-card mt-4">
+    <h2>Why the Attack Succeeded or Failed</h2>
+    <div class="two-col">
+        <div>
+            <h3 class="text-danger">Why the attack succeeded</h3>
+            <ul class="lesson-list">
+                <li>Unlimited login attempts</li>
+                <li>No account lockout</li>
+                <li>No delay between attempts</li>
+                <li>Weak password</li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="text-success">Why the attack failed</h3>
+            <ul class="lesson-list">
+                <li>Rate limiting</li>
+                <li>Temporary lock</li>
+                <li>Password hashing</li>
+                <li>Login monitoring</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="cyber-card mt-4">
+    <h2>Defense</h2>
+    <p>Limit attempts per account and IP, lock temporarily after repeated failures, log suspicious activity, and require strong passwords plus multi-factor authentication.</p>
+    <h3>OWASP recommendation</h3>
+    <p>OWASP recommends secure authentication controls such as rate limiting, account lockout, strong password storage, monitoring, and multi-factor authentication.</p>
+    <h3>Vulnerable vs secure implementation</h3>
+    <p>The vulnerable version allows unlimited guessing. The secure version limits attempts and locks the account temporarily before the correct password can be reached.</p>
+    <div class="d-flex gap-2 flex-wrap">
+        <form method="post"><input type="hidden" name="mode" value="complete"><button class="btn btn-info">Mark lab complete</button></form>
+        <a class="btn btn-outline-info" href="{{ url_for('labs.quiz', lab_slug='bruteforce') }}">Take quiz</a>
+    </div>
+</section>
+{% endblock %}

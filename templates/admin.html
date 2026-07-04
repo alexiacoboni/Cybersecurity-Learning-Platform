@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+{% block title %}Admin | CyberLabs{% endblock %}
+{% block content %}
+<div class="dashboard-head">
+    <div>
+        <p class="eyebrow">Administration</p>
+        <h1>CyberLabs Control Panel</h1>
+        <p class="muted">View users, logs, completed labs, and statistics.</p>
+    </div>
+    <canvas id="adminChart" data-users="{{ stats.users }}" data-completed="{{ stats.completed }}" data-logs="{{ stats.logs }}" data-sql="{{ stats.sql_attacks }}" data-xss="{{ stats.xss_attacks }}" data-bruteforce="{{ stats.brute_force_attacks }}"></canvas>
+</div>
+
+<div class="stats-grid">
+    <div class="cyber-card stat"><i class="bi bi-people"></i><span>{{ stats.users }}</span><p>Users</p></div>
+    <div class="cyber-card stat"><i class="bi bi-award"></i><span>{{ stats.completed }}</span><p>Completions</p></div>
+    <div class="cyber-card stat"><i class="bi bi-journal-text"></i><span>{{ stats.logs }}</span><p>Log entries</p></div>
+</div>
+
+<div class="two-col mt-4">
+    <section class="cyber-card">
+        <h2>Most Common SQL Injection Payloads</h2>
+        {% for payload, count in common_sql_payloads %}
+            <div class="activity-item"><span class="dot fail"></span><div><strong>{{ count }} uses</strong><p><code>{{ payload[:120] }}</code></p></div></div>
+        {% else %}
+            <p class="muted">No SQL payloads yet.</p>
+        {% endfor %}
+    </section>
+    <section class="cyber-card">
+        <h2>Most Common XSS Payloads</h2>
+        {% for payload, count in common_xss_payloads %}
+            <div class="activity-item"><span class="dot fail"></span><div><strong>{{ count }} uses</strong><p><code>{{ payload[:120] }}</code></p></div></div>
+        {% else %}
+            <p class="muted">No XSS payloads yet.</p>
+        {% endfor %}
+    </section>
+</div>
+
+<div class="two-col mt-4">
+    <section class="cyber-card">
+        <h2>Brute Force Statistics</h2>
+        <p>Attempts: {{ brute_force_stats.attempts }}</p>
+        <p>Successful simulations: {{ brute_force_stats.success }}</p>
+        <p class="mb-0">Blocked or failed simulations: {{ brute_force_stats.failed }}</p>
+    </section>
+    <section class="cyber-card">
+        <h2>Top Users by Score</h2>
+        {% for item in top_users %}
+            <div class="activity-item"><span class="dot ok"></span><div><strong>{{ item.username }}</strong><p>{{ item.score }} pts</p></div></div>
+        {% else %}
+            <p class="muted">No scores yet.</p>
+        {% endfor %}
+    </section>
+</div>
+
+<section class="cyber-card mt-4">
+    <h2>Create New User</h2>
+    <form method="post" action="{{ url_for('admin.create_user') }}" class="row g-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="col-md-3">
+            <input class="form-control" name="username" placeholder="Username" required minlength="3" maxlength="50">
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" name="email" type="email" placeholder="Email" required>
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" name="password" type="password" placeholder="Password (min 8 chars)" required minlength="8">
+        </div>
+        <div class="col-md-2">
+            <select class="form-select" name="role">
+                <option value="student" selected>Student</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div class="col-md-1">
+            <button class="btn btn-info w-100" type="submit"><i class="bi bi-person-plus"></i></button>
+        </div>
+    </form>
+</section>
+
+<section class="cyber-card mt-4">
+    <h2>Users</h2>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle">
+            <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th></th></tr></thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td><td>{{ user.username }}</td><td>{{ user.email }}</td><td>{{ user.role }}</td>
+                    <td class="text-end">
+                        <form method="post" action="{{ url_for('admin.delete_user', user_id=user.id) }}" onsubmit="return confirm('Delete this user?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="two-col mt-4">
+    <section class="cyber-card">
+        <h2>Completed Labs</h2>
+        {% for item in completed %}
+            <div class="activity-item"><span class="dot ok"></span><div><strong>{{ item.user.username }}</strong><p>{{ item.lab.title }} | {{ item.score }} pts</p></div></div>
+        {% else %}
+            <p class="muted">No completions yet.</p>
+        {% endfor %}
+    </section>
+    <section class="cyber-card">
+        <h2>Recent Attacks</h2>
+        {% for log in recent_attacks %}
+            <div class="activity-item">
+                <span class="dot {{ 'ok' if log.success else 'fail' }}"></span>
+                <div><strong>{{ log.username or log.user }} - {{ log.lab_name or log.attack }}</strong><p>{{ log.payload[:100] }} | {{ log.result or log.attack }} | {{ log.timestamp | ro_time }}</p></div>
+            </div>
+        {% else %}
+            <p class="muted">No attacks yet.</p>
+        {% endfor %}
+    </section>
+</div>
+
+<section class="cyber-card mt-4">
+    <h2>Recent Logins</h2>
+    {% for log in recent_logins %}
+        <div class="activity-item">
+            <span class="dot {{ 'ok' if log.success else 'fail' }}"></span>
+            <div><strong>{{ log.username or log.user }}</strong><p>{{ log.attack }} | {{ log.ip_address or "unknown IP" }} | {{ log.timestamp | ro_time }}</p></div>
+        </div>
+    {% else %}
+        <p class="muted">No login activity yet.</p>
+    {% endfor %}
+</section>
+
+<section class="cyber-card mt-4">
+    <h2>All Security Logs</h2>
+    {% for log in logs %}
+        <div class="activity-item">
+            <span class="dot {{ 'ok' if log.success else 'fail' }}"></span>
+            <div><strong>{{ log.username or log.user }} - {{ log.attack }}</strong><p>{{ log.payload[:100] }} | {{ log.result or log.attack }} | {{ log.timestamp | ro_time }}</p></div>
+        </div>
+    {% else %}
+        <p class="muted">No logs yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

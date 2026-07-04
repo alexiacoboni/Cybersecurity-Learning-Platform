@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block title %}SQL Injection Lab | CyberLabs{% endblock %}
+{% block content %}
+<div class="lab-header">
+    <p class="eyebrow">Educational simulation</p>
+    <h1>SQL Injection</h1>
+    <p>SQL injection happens when untrusted input is joined directly into a query. The defense is to bind data as parameters so the database treats it as values, not executable SQL.</p>
+</div>
+<div class="warning-band"><i class="bi bi-shield-exclamation"></i> Vulnerable examples are intentionally unsafe and exist only inside this lab.</div>
+
+<div class="two-col">
+    <section class="cyber-card">
+        <h2>Vulnerable Login</h2>
+        <p class="muted">Try username <code>admin' OR '1'='1' --</code> with any password.</p>
+        <form method="post">
+            <input type="hidden" name="mode" value="vulnerable">
+            <input class="form-control mb-3" name="username" placeholder="Username">
+            <input class="form-control mb-3" name="password" placeholder="Password">
+            <button class="btn btn-danger" type="submit"><i class="bi bi-bug"></i> Run vulnerable query</button>
+        </form>
+        {% if generated_query %}
+            <pre class="code-block mt-3">{{ generated_query }}</pre>
+            <div class="result-box mt-3 {{ 'result-success' if vulnerable_result.success else 'result-fail' }}">
+                <h3>{{ "✓" if vulnerable_result.success else "✗" }} {{ vulnerable_result.title }}</h3>
+                {% if vulnerable_result.success %}
+                    <p class="mb-1"><strong>Returned user:</strong></p>
+                    <p class="mb-0">Username: {{ vulnerable_result.username }}</p>
+                    <p>Role: {{ vulnerable_result.role }}</p>
+                {% endif %}
+                <p class="mb-1"><strong>Reason:</strong></p>
+                <p class="mb-0">{{ vulnerable_result.reason }}</p>
+            </div>
+        {% endif %}
+    </section>
+    <section class="cyber-card">
+        <h2>Secure Login</h2>
+        <p class="muted">The same payload is harmless because values are bound with placeholders.</p>
+        <form method="post">
+            <input type="hidden" name="mode" value="secure">
+            <input class="form-control mb-3" name="username" placeholder="Username">
+            <input class="form-control mb-3" name="password" placeholder="Password hash value">
+            <button class="btn btn-success" type="submit"><i class="bi bi-lock"></i> Run prepared statement</button>
+        </form>
+        {% if secure_result is not none %}
+            <div class="result-box mt-3 {{ 'result-success' if secure_result.success else 'result-fail' }}">
+                <h3>{{ "✓" if secure_result.success else "✗" }} {{ secure_result.title }}</h3>
+                {% if secure_result.success %}
+                    <p class="mb-1"><strong>Returned user:</strong></p>
+                    <p class="mb-0">Username: {{ secure_result.username }}</p>
+                    <p>Role: {{ secure_result.role }}</p>
+                {% endif %}
+                <p class="mb-1"><strong>Reason:</strong></p>
+                <p class="mb-0">{{ secure_result.reason }}</p>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<section class="cyber-card mt-4">
+    <h2>Prepared Statement Pattern</h2>
+    <pre class="code-block">db.session.execute(
+    text("SELECT username FROM users WHERE username = :username"),
+    {"username": user_input}
+)</pre>
+    <h3>How to prevent it</h3>
+    <p>Use parameterized queries, least-privilege database accounts, server-side validation, and avoid revealing SQL errors to users.</p>
+    <h3>OWASP recommendation</h3>
+    <p>OWASP recommends prepared statements with parameterized queries as the primary defense against injection.</p>
+    <h3>Vulnerable vs secure implementation</h3>
+    <p>The vulnerable version treats input as part of the SQL syntax. The secure version binds input as data, so the payload cannot change the query logic.</p>
+    <div class="d-flex gap-2 flex-wrap">
+        <form method="post"><input type="hidden" name="mode" value="complete"><button class="btn btn-info">Mark lab complete</button></form>
+        <a class="btn btn-outline-info" href="{{ url_for('labs.quiz', lab_slug='sql') }}">Take quiz</a>
+    </div>
+</section>
+{% endblock %}

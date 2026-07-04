@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}{{ lab_name }} Quiz | CyberLabs{% endblock %}
+{% block content %}
+<div class="lab-header">
+    <p class="eyebrow">Knowledge check</p>
+    <h1>{{ lab_name }} Quiz</h1>
+    <p>Five multiple-choice questions. Each correct answer is worth 10 points. Each quiz can be submitted once.</p>
+</div>
+
+<section class="cyber-card">
+    {% if existing %}
+        <div class="result-box result-success">
+            <h2>Quiz already completed</h2>
+            <p class="mb-0">Your saved score is {{ existing.score }}/{{ existing.total_questions * 10 }} points.</p>
+        </div>
+    {% else %}
+        <form method="post">
+            {% for question in questions %}
+                <div class="quiz-question">
+                    <h2>{{ loop.index }}. {{ question.question }}</h2>
+                    {% set q_index = loop.index0 %}
+                    {% for option in question.options %}
+                        <label class="quiz-option">
+                            <input type="radio" name="q{{ q_index }}" value="{{ loop.index0 }}" required>
+                            <span>{{ option }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button class="btn btn-info mt-3" type="submit"><i class="bi bi-check2-square"></i> Submit quiz</button>
+        </form>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard | CyberLabs{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+    <div>
+        <p class="eyebrow">Welcome, {{ current_user.username }}</p>
+        <h1>Training Dashboard</h1>
+        <p class="muted">Study each exploit path, compare the defensive implementation, then mark the lab complete.</p>
+    </div>
+    <div class="progress-ring" data-progress="{{ metrics.percent }}">
+        <span>{{ metrics.percent }}%</span>
+    </div>
+</section>
+
+<div class="stats-grid">
+    <div class="cyber-card stat"><i class="bi bi-check2-circle"></i><span>{{ metrics.completed }}/{{ metrics.total_labs }}</span><p>Completed labs</p></div>
+    <div class="cyber-card stat"><i class="bi bi-activity"></i><span>{{ metrics.score }}</span><p>Total score</p></div>
+    <div class="cyber-card stat"><i class="bi bi-flag"></i><span>{{ latest_completed.lab.title if latest_completed else "None" }}</span><p>Latest completed lab</p></div>
+</div>
+
+<section class="cyber-card mb-4">
+    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+        <div class="flex-grow-1">
+            <div class="d-flex justify-content-between"><strong>Progress</strong><span>{{ metrics.percent }}%</span></div>
+            <div class="progress cyber-progress mt-2" role="progressbar" aria-valuenow="{{ metrics.percent }}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: {{ metrics.percent }}%"></div>
+            </div>
+        </div>
+        <a class="btn btn-outline-info" href="{{ url_for('labs.report_pdf') }}"><i class="bi bi-file-earmark-pdf"></i> Download PDF</a>
+    </div>
+    <div class="badge-grid mt-3">
+        {% for badge in badges %}
+            <span class="achievement"><i class="bi bi-patch-check"></i> {{ badge.name }}</span>
+        {% else %}
+            <span class="muted">Complete labs to unlock badges.</span>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="content-grid">
+    <section>
+        <h2 class="section-title">Available Labs</h2>
+        <div class="lab-grid">
+            {% for lab in labs %}
+                {% set item = progress.get(lab.id) %}
+                <article class="cyber-card lab-card">
+                    <div class="lab-icon"><i class="bi bi-terminal"></i></div>
+                    <div>
+                        <h3>{{ lab.title }}</h3>
+                        <p>{{ lab.description }}</p>
+                        <span class="badge text-bg-dark border">{{ lab.difficulty }}</span>
+                        {% if item and item.completed %}
+                            <span class="badge text-bg-success">Completed</span>
+                        {% else %}
+                            <span class="badge text-bg-secondary">Open</span>
+                        {% endif %}
+                    </div>
+                    <a class="btn btn-outline-info mt-3" href="{% if lab.title == 'SQL Injection' %}{{ url_for('labs.sql_lab') }}{% elif lab.title == 'Cross-Site Scripting' %}{{ url_for('labs.xss_lab') }}{% else %}{{ url_for('labs.bruteforce_lab') }}{% endif %}">
+                        Open lab
+                    </a>
+                    <a class="btn btn-outline-light mt-2" href="{% if lab.title == 'SQL Injection' %}{{ url_for('labs.quiz', lab_slug='sql') }}{% elif lab.title == 'Cross-Site Scripting' %}{{ url_for('labs.quiz', lab_slug='xss') }}{% else %}{{ url_for('labs.quiz', lab_slug='bruteforce') }}{% endif %}">
+                        Quiz
+                    </a>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+    <aside>
+        <h2 class="section-title">Recent Activity</h2>
+        <div class="cyber-card activity-list">
+            {% for log in recent_logs %}
+                <div class="activity-item">
+                    <span class="dot {{ 'ok' if log.success else 'fail' }}"></span>
+                    <div><strong>{{ log.attack }}</strong><p>{{ log.timestamp | ro_time }}</p></div>
+                </div>
+            {% else %}
+                <p class="muted mb-0">No lab activity yet.</p>
+            {% endfor %}
+        </div>
+    </aside>
+</div>
+{% endblock %}
