@@ -10,8 +10,10 @@ Each lab pairs a **vulnerable implementation** with a **secure implementation** 
 
 ## Live Demo
 
-[Add your Render URL here once deployed, e.g. `https://cyberlabs.onrender.com`]
+**[https://cybersecurity-learning-platform-5y8y.onrender.com](https://cybersecurity-learning-platform-5y8y.onrender.com)**
 
+> ⏱️ Hosted on Render's free tier — the instance spins down after periods of inactivity, so the **first request may take up to ~50 seconds** to wake it back up. Subsequent requests are fast.
+>
 > Note: the free-tier demo uses SQLite on ephemeral storage. Accounts created by visitors may be reset on redeploy/restart. See [Deployment](#deployment) for a persistent database option.
 
 ---
