@@ -106,7 +106,6 @@ a { color: var(--cyan); }
 .quiz-question:first-child { padding-top: 0; }
 .quiz-question h2 { font-size: 1.05rem; }
 .quiz-option { display: flex; gap: .6rem; align-items: center; padding: .45rem 0; color: var(--muted); }
-#adminChart { width: min(100%, 360px) !important; height: 190px !important; }
 .table-dark { --bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,.08); }
 
 @keyframes rise {
@@ -124,4 +123,15 @@ a { color: var(--cyan); }
     .dashboard-head { flex-direction: column; }
     .progress-ring { width: 110px; }
     .cyber-card { padding: 1rem; }
+}
+
+.admin-chart-wrap {
+    width: 220px;
+    height: 220px;
+    flex-shrink: 0;
+}
+
+.admin-chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
 }

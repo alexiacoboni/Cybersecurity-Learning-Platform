@@ -7,7 +7,9 @@
         <h1>CyberLabs Control Panel</h1>
         <p class="muted">View users, logs, completed labs, and statistics.</p>
     </div>
-    <canvas id="adminChart" data-users="{{ stats.users }}" data-completed="{{ stats.completed }}" data-logs="{{ stats.logs }}" data-sql="{{ stats.sql_attacks }}" data-xss="{{ stats.xss_attacks }}" data-bruteforce="{{ stats.brute_force_attacks }}"></canvas>
+    <div class="admin-chart-wrap">
+        <canvas id="adminChart" data-users="{{ stats.users }}" data-completed="{{ stats.completed }}" data-logs="{{ stats.logs }}" data-sql="{{ stats.sql_attacks }}" data-xss="{{ stats.xss_attacks }}" data-bruteforce="{{ stats.brute_force_attacks }}"></canvas>
+    </div>
 </div>
 
 <div class="stats-grid">
