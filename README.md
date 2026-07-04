@@ -18,6 +18,22 @@ Each lab pairs a **vulnerable implementation** with a **secure implementation** 
 
 ---
 
+## Screenshots
+
+| Dashboard | SQL Injection Lab |
+|---|---|
+| ![Training Dashboard](docs/screenshots/cyber-dashboard.png) | ![SQL Injection Lab](docs/screenshots/cyber-sqlSimulation.png) |
+
+| Cross-Site Scripting Lab | Brute Force Lab |
+|---|---|
+| ![XSS Lab](docs/screenshots/cyber-xss.png) | ![Brute Force Lab](docs/screenshots/cyber-bruteForce.png) |
+
+| Quiz |
+|---|
+| ![Quiz](docs/screenshots/cyber-quizz.png) |
+
+---
+
 ## Features
 
 - **User accounts** — registration, login/logout, session-based auth (Flask-Login)
